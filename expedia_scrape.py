@@ -1,36 +1,106 @@
+"""FUNCIONANDO!!!
+1ª Melhoria: arrumar as outras entradas como: numero de quartos(rmX), numero de adultos(aX) e de criancas (aX:cY:cY, Y = idade)
+2ª Melhoria: jogar os dados para uma planilha (ou pbix) e construir gráficos
+3ª Melhoria: trazer diferenças entre os quartos (café, televisão, etc). Precisa?"""
+
 import requests
 import json
+import datetime
+import sys
 
-#https://www.expedia.com/Fortaleza-Hotels-Beach-Park-Oceani-Hotel.h5389392.Hotel-Information?&chkin=11/14/2018&chkout=11/17/2018&rm1=a2&exp_dp=129.42&exp_ts=1539527422076&exp_curr=USD&swpToggleOn=false&exp_pg=HSR
+hoteis = {'Acqua': 2870853, 'Oceani': 5389392, 'Suites': 2651700, 'Wellness': 2478285,
+          'Salinas': 2858569, 'Rio Quente': 10238701, 'Iberostar Bahia': 1721960}
 
-hotel_id = "5389392"  #ID do Hotel Oceani no Expedia
-start_date = "03/14/2019"
-end_date = "03/17/2019"
+for key in hoteis:
+    print("Hotel: ",
+          key)
 
+#Entrada de dados feita pelo usuário
+nome_hotel = input("Escolha um nome de hotel na lista acima para ser pesquisado: ")
+start_date = input("Escolha uma data de check-in: ")
+end_date = input("Escolha uma data de check-out: ")
+#numero_de_quartos = input("Escolha quantos quartos quer na resrva: ")
 
-base_url = f"https://www.expedia.com/api/hotels/pricehotel/{hotel_id}"
-query_string = f"?start={start_date}&end={end_date}&channel=2&_=153952770102"
+#captura do ID do hotel segundo o dicionario de hoteis
+id_hotel = hoteis[str(nome_hotel)]
 
-base_url2 = f"https://www.expedia.com/Fortaleza-Hotels-Beach-Park-Oceani-Hotel.h{hotel_id}.Hotel-Information"
-query_string2 = f"?&chkin={start_date}&chkout={end_date}&rm1=a2&exp_dp=129.42&exp_ts=1539527422076&exp_curr=USD&swpToggleOn=false&exp_pg=HSR"
+""""Construção do link para puxar os dados """
+
+base_url = f"http://www.expedia.com.br/.h{id_hotel}.Hotel-Reservas"
+query_string = f"?chkin={start_date}&chkout={end_date}&rm1=a2&sort" \
+               f"=recommended&hwrqCacheKey=e1879214-ce8c-4103-abc0-98cbee5a3b24HWRQ1539651169762&" \
+               f"cancellable=false&regionId=6034455&vip=false&c=e67b9548-f9da-4fb9-8660-a7bc89bdf9b6&&" \
+               f"exp_dp=531.43&exp_ts=1539651170373&exp_curr=BRL&swpToggleOn=false&exp_pg=HSR"
 
 url = base_url + query_string
-url2 = base_url2 + query_string2
 
 response = requests.get(url)
-response2 = requests.get(url2)
 
-data = response.json()
-html = response2.text
+html = response.text
 
-print(json.dumps(data, indent=4))  #Identação do json
+"""inicialização das variáveis que vão receber os dados das ofertas e dos quartos"""
+dados_de_ofertas = {}
+dados_de_quartos = {}
 
-#for line in html.split('\n'):
-#	if 'var roomsAndRatePlans' in line:
-#		quartos = line[24:-1]
+for line in html.split('\n'):
+    if 'infosite.offersData' in line:
+        dados_de_ofertas = line[21:-1]
 
-#print(quartos)
+ofertas_dict = json.loads(dados_de_ofertas)
 
-#quartos2 = (json.loads(quartos))
+for line in html.split('\n'):
+    if 'var roomsAndRatePlans' in line:
+        dados_de_quartos = line[24:-1]
 
-#print(json.dumps(quartos2, indent=4))
+quartos_dict = json.loads(dados_de_quartos)
+
+hotel_disponibilidade = ofertas_dict['hotelSoldOut']
+
+#Checa se o hotel está sold-out
+
+if hotel_disponibilidade == 0:
+    print("\nHá quartos disponíveis no",
+          nome_hotel,
+          "de",
+          datetime.datetime.strptime(start_date, "%d/%m/%Y").strftime("%d/%m/%Y"),
+          "a"
+          , datetime.datetime.strptime(end_date, "%d/%m/%Y").strftime("%d/%m/%Y"), ".\n")
+else:
+    print("O",
+          nome_hotel,
+          "não possui disponibilidade para a data selecionada.\n")
+
+#Se o hotel não está sold-out, captura preço e nome das UHs
+
+for i in range(12):
+    try:
+        ofertas_quarto_i = ofertas_dict['offers'][i]
+        noites_quarto_i = ofertas_quarto_i['nightlyRates']
+        quarto_disponibilidade_i = ofertas_quarto_i['bookable']
+        preco_quarto_i = ofertas_quarto_i['price']['priceObject']['amount']
+        preco_total_quarto_i = ofertas_quarto_i['price']['totalPrice']
+
+        provider_id_i = ofertas_quarto_i['inventoryProviderID']
+        roomtype_id_i = ofertas_quarto_i['roomTypeCode']
+        chave_quarto_i = str(provider_id_i) + "-" + str(roomtype_id_i)
+
+        nome_quarto_i = quartos_dict['rooms'][chave_quarto_i]['name']
+
+        if quarto_disponibilidade_i == 1:
+            print("O quarto",
+                  nome_quarto_i
+                  ,"encontra-se disponivel de",
+                  datetime.datetime.strptime(start_date, "%d/%m/%Y").strftime("%d/%m/%Y")
+                  ,"A",
+                  datetime.datetime.strptime(end_date, "%d/%m/%Y").strftime("%d/%m/%Y")
+                  ,"custando",
+                  preco_quarto_i
+                  ,"por noite, resultando em um total de:",
+                  preco_total_quarto_i
+                  ,".")
+        else:
+            print("O quarto",
+                  nome_quarto_i
+                  ,"não possui disponibilidade para o período.")
+    except:
+        sys.exit(1)
