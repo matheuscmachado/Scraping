@@ -10,8 +10,15 @@ import datetime
 import requests
 
 
-HOTEIS = {'Acqua': 2870853, 'Oceani': 5389392, 'Suites': 2651700, 'Wellness': 2478285,
-'Salinas': 2858569, 'Rio Quente': 10238701, 'Iberostar Bahia': 1721960}
+HOTEIS = {
+    'Acqua': 2870853,
+    'Oceani': 5389392,
+    'Suites': 2651700,
+    'Wellness': 2478285,
+    'Salinas': 2858569,
+    'Rio Quente': 10238701,
+    'Iberostar Bahia': 1721960
+}
 
 
 def get_user_choices() -> dict:
