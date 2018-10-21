@@ -143,8 +143,9 @@ def get_offers(room_data, ofertas_dict, quartos_dict):
                 print("O quarto",
                   nome_quarto_i
                   ,"não possui disponibilidade para o período.")
-    except Exception:
+    except Exception as e:
         print('Erro ao processar. Encerrando o programa.')
+        print('Mensagem de erro: {e!r}')
         sys.exit(1)
 
 
