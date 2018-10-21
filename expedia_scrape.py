@@ -22,7 +22,7 @@ HOTEIS = {
 
 
 def get_user_choices() -> dict:
-    '''Asks for user input and returns a dict with the answers.'''
+    """Asks for user input and returns a dict with the answers."""
 
     for key in HOTEIS:
         print("Hotel: ", key)
@@ -48,7 +48,7 @@ def get_user_choices() -> dict:
 
 
 def get_link(room_data) -> str:
-    """"Construção do link para puxar os dados """
+    """Construção do link para puxar os dados."""
 
     id_hotel = room_data['id_hotel']
 
@@ -92,8 +92,8 @@ def call_and_parse_expedia(link) -> dict:
     }
 
 
-def check_availability(hotel_disponibilidade, room_data):
-    '''Checa se o hotel está sold-out'''
+def check_availability(hotel_disponibilidade, room_data) -> bool:
+    """Checa se o hotel está sold-out."""
 
     if hotel_disponibilidade == 0:
         print("\nHá quartos disponíveis no",
@@ -111,7 +111,7 @@ def check_availability(hotel_disponibilidade, room_data):
 
 
 def get_offers(room_data, ofertas_dict, quartos_dict):
-    '''Captura preço e nome das UHs'''
+    """Captura preço e nome das UHs, printando na tela do usuário."""
     
     try:
         for ofertas_quarto_i in ofertas_dict['offers']:
