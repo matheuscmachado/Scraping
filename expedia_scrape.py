@@ -80,11 +80,9 @@ def call_and_parse_expedia(link) -> dict:
             dados_de_ofertas = line[21:-1]
             ofertas_dict = json.loads(dados_de_ofertas)
 
-    for line in html.split('\n'):
-        if 'var roomsAndRatePlans' in line:
+        elif 'var roomsAndRatePlans' in line:
             dados_de_quartos = line[24:-1]
             quartos_dict = json.loads(dados_de_quartos)
-
             hotel_disponibilidade = ofertas_dict['hotelSoldOut']
 
     return {
