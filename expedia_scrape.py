@@ -46,10 +46,12 @@ def get_link(room_data) -> str:
     id_hotel = room_data['id_hotel']
 
     base_url = f"http://www.expedia.com.br/.h{room_data['id_hotel']}.Hotel-Reservas"
-    query_string = f"?chkin={room_data['start_date']}&chkout={room_data['end_date']}&rm1=a2&sort" \
-    f"=recommended&hwrqCacheKey=e1879214-ce8c-4103-abc0-98cbee5a3b24HWRQ1539651169762&" \
-    f"cancellable=false&regionId=6034455&vip=false&c=e67b9548-f9da-4fb9-8660-a7bc89bdf9b6&&" \
-    f"exp_dp=531.43&exp_ts=1539651170373&exp_curr=BRL&swpToggleOn=false&exp_pg=HSR"
+    query_string = (
+        f"?chkin={room_data['start_date']}&chkout={room_data['end_date']}&rm1=a2&sort"
+        + f"=recommended&hwrqCacheKey=e1879214-ce8c-4103-abc0-98cbee5a3b24HWRQ1539651169762&"
+        + f"cancellable=false&regionId=6034455&vip=false&c=e67b9548-f9da-4fb9-8660-a7bc89bdf9b6&&"
+        + f"exp_dp=531.43&exp_ts=1539651170373&exp_curr=BRL&swpToggleOn=false&exp_pg=HSR"
+    )
 
     return base_url + query_string
 
